@@ -11,6 +11,8 @@ const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const paymentRoutes = require("./routes/paymentRoutes"); 
+const orderRoutes = require("./routes/orderroute");
+
 
 const app = express();
 const FRONTEND_URL = "http://localhost:5173";
@@ -29,13 +31,13 @@ app.use(express.json());
 // Stripe checkout session create
 app.post("/api/payment/create-checkout-session", async (req, res) => {
   try {
-    const { products } = req.body;
+    const { cartItems  } = req.body;
 
-    if (!products || !Array.isArray(products)) {
-      return res.status(400).json({ error: "Invalid products array" });
+    if (!cartItems  || !Array.isArray(cartItems )) {
+      return res.status(400).json({ error: "Invalid cartItems  array" });
     }
 
-    const lineItems = products.map((item) => ({
+    const lineItems = cartItems .map((item) => ({
       price_data: {
         currency: "inr",
         product_data: { name: item.name },
@@ -65,6 +67,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/orders", orderRoutes);
 
 app.get("/health", (req, res) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
