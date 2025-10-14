@@ -1,0 +1,7 @@
+Rest api  -- JSOn
+GET /USERS ----LIST ALL USERS 
+GET /USERS/1 GET the user with id 1 
+GET /USERS/2 GET the user with id 2 
+ post/ user ---create new user 
+ patch //user edit user 
+ delet user/1
