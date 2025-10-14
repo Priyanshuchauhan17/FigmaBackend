@@ -7,7 +7,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const db = require("../config/db"); // make sure this connects to your DB
 
 router.post(
-  "/stripe-webhook",
+  "/webhook",
   bodyParser.raw({ type: "application/json" }),
   async (req, res) => {
     const sig = req.headers["stripe-signature"];
