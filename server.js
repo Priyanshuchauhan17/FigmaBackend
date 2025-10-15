@@ -13,7 +13,6 @@ const categoryRoutes = require("./routes/categoryRoutes");
 const paymentRoutes = require("./routes/paymentRoutes"); 
 const orderRoutes = require("./routes/orderroute");
 
-
 const app = express();
 const FRONTEND_URL = "http://localhost:5173";
 
@@ -22,7 +21,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 // Middleware
 app.use(cors({ origin: FRONTEND_URL, methods: ["GET", "POST"] }));
 
-// ⚠️ important: webhook route se pehle normal express.json na lagaye
 app.use("/api/payment", paymentRoutes);
 
 // Normal routes ke liye json
@@ -32,18 +30,25 @@ app.use(express.json());
 app.post("/api/payment/create-checkout-session", async (req, res) => {
   try {
     const { cartItems, userData } = req.body;
-
     console.log("cartItems:", cartItems);
     console.log("userData:", userData);
 
-    if (!cartItems  || !Array.isArray(cartItems )) {
-      return res.status(400).json({ error: "Invalid cartItems  array" });
+    if (!cartItems || !Array.isArray(cartItems)) {
+      return res.status(400).json({ error: "Invalid cartItems array" });
     }
 
-    const lineItems = cartItems .map((item) => ({
+    // Validate userData
+    if (!userData || !userData.phone || !userData.address || !userData.city) {
+      return res.status(400).json({ error: "User data is incomplete" });
+    }
+
+    const lineItems = cartItems.map((item) => ({
       price_data: {
         currency: "ILS",
-        product_data: { name: item.name },
+        product_data: { 
+          name: item.name,
+          images: item.image ? [item.image] : [], // ✅ Add image
+        },
         unit_amount: Math.round(item.price * 100),
       },
       quantity: item.quantity,
@@ -53,8 +58,28 @@ app.post("/api/payment/create-checkout-session", async (req, res) => {
       payment_method_types: ["card"],
       line_items: lineItems,
       mode: "payment",
-      success_url: `${FRONTEND_URL}/success`,
+      success_url: `${FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${FRONTEND_URL}/cancel`,
+      
+      // ✅ Add customer email if available
+      customer_email: userData.email || undefined,
+      
+      // ✅ Add shipping address collection (optional)
+      // shipping_address_collection: {
+      //   allowed_countries: ['IL', 'US'], // Add countries as needed
+      // },
+      
+      // ✅ Pass userData as metadata (IMPORTANT!)
+      metadata: {
+        userId: userData.userId || 'guest',
+        phone: userData.phone,
+        address: userData.address,
+        city: userData.city,
+        zipCode: userData.zipCode || '',
+        customerName: userData.name || '',
+        // Store cart items count for reference
+        totalItems: cartItems.reduce((sum, item) => sum + item.quantity, 0).toString(),
+      },
     });
 
     console.log("✅ Checkout Session Created:", session.id);
