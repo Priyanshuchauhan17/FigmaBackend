@@ -31,7 +31,10 @@ app.use(express.json());
 // Stripe checkout session create
 app.post("/api/payment/create-checkout-session", async (req, res) => {
   try {
-    const { cartItems  } = req.body;
+    const { cartItems, userData } = req.body;
+
+    console.log("cartItems:", cartItems);
+    console.log("userData:", userData);
 
     if (!cartItems  || !Array.isArray(cartItems )) {
       return res.status(400).json({ error: "Invalid cartItems  array" });
