@@ -37,7 +37,7 @@ router.post(
         // This is crucial to get access to the product's name and image.
         const lineItems = await stripe.checkout.sessions.listLineItems(payment_id, {
           expand: ["data.price.product"],
-          limit: 100, //  limit as needed
+          limit: 100, // Adjust limit as needed
         });
 
         // Convert line items to JSON string for DB

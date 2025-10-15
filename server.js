@@ -39,7 +39,7 @@ app.post("/api/payment/create-checkout-session", async (req, res) => {
 
     const lineItems = cartItems .map((item) => ({
       price_data: {
-        currency: "inr",
+        currency: "ILS",
         product_data: { name: item.name },
         unit_amount: Math.round(item.price * 100),
       },
