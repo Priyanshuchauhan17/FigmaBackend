@@ -23,4 +23,14 @@ router.get("/:orderId", (req, res) => {
   });
 });
 
+// Get orders by user ID
+router.get("/user/:userId", (req, res) => {
+  const { userId } = req.params;
+  const sql = "SELECT * FROM orders WHERE user_id = ? ORDER BY id DESC";
+  db.query(sql, [userId], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
 module.exports = router;
